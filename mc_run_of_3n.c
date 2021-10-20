@@ -9,13 +9,17 @@
 
 static int r(uint16_t max)
 {
-    int rem;
+    uint64_t rmax;
+    uint16_t rem;
     int res;
-    rem = RAND_MAX % max;
+
+    rmax = (uint64_t)RAND_MAX + 1;
+    rem = rmax % max;
     do
     {
-        res = rand();
-    } while (res > (RAND_MAX - rem));
+        int tmp = random();
+        res = (tmp & ~(0xFF | (0xFF << 11))) | ((tmp >> 11) & 0xFF) | ((tmp & 0xFF) << 11);
+    } while (((uint64_t)res) > (rmax - rem));
     return res % max;
 }
 
@@ -87,14 +91,21 @@ int main(void)
     long unsigned count = 0;
     long unsigned successes = 0;
 
-    srand(time(NULL));
+    srandom(time(NULL));
 
+    printf("\n");
     while (count++ < RUNS)
     {
         int d[DEAL_N];
         deal_n(d, DEAL_N);
         successes += is_run(d, DEAL_N);
+        if (count % 1000000 == 0)
+        {
+            printf("\r%12lu", count);
+            fflush(stdout);
+        }
     }
+    printf("\n");
 
     printf("Run of three in %llu deals: %lu (%f)\n", RUNS, successes,
             (double)successes/RUNS);

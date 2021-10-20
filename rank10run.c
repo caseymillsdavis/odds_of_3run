@@ -36,7 +36,15 @@ int main(void)
             int tz;
 
             if (run_check(v))
+            {
+                //unsigned i;
+                //for (i = 0; i < 52; i++)
+                //{
+                //    printf("%lu", (v >> (52 - i - 1)) & 0x1);
+                //}
+                //printf("\n");
                 run_count++;
+            }
             
             tz = __builtin_ctzll(v);
             v += 1ULL << tz;
